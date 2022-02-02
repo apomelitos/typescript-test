@@ -27,10 +27,14 @@ jobs:
           npm ci
         
       - name: Lint
-        run: npm run lint
+        run: |
+          cd my-app/
+          npm run lint
 
       - name: Build
-        run: npm run build
+        run: |
+          cd my-app/
+          npm run build
       
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.5
