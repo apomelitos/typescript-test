@@ -8,7 +8,7 @@ export const PokemonDetails: FC<PokemonDetailsProps> = ({ id, baseURL }): JSX.El
 
   useEffect(() => {
     const fetchPokemonById = async (id: number) => {
-      const response = await fetch(`${baseURL}/pokemon/${id}`);
+      const response = await fetch(`${baseURL}/pokemon/${id.toString()}`);
       const data = (await response.json()) as PokemonType;
       setPokemon(data);
     };
