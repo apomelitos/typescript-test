@@ -5,7 +5,7 @@ import './EvolutionsList.scss';
 export const EvolutionList: FC<EvolutionsListProps> = ({ pokemonSpeciesURL }) => {
   const [evolutions, setEvolutions] = useState<EvolutionChain[]>();
 
-  const getArrayFromRecursiveObject = (obj: EvolutionChain): Array<EvolutionChain> => {
+  const getArrayFromRecursiveObject = (obj: EvolutionChain): EvolutionChain[] => {
     const arr: Array<EvolutionChain> = [];
 
     let currentEvolution: EvolutionChain = obj;
@@ -26,20 +26,18 @@ export const EvolutionList: FC<EvolutionsListProps> = ({ pokemonSpeciesURL }) =>
     return arr;
   };
 
-  const fetchPokemonSpriteByName = async (name: string): Promise<string> => {
-    let url = '';
-
+  const fetchPokemonSpritesByName = async (URLs: string[]): Promise<string[]> => {
     try {
-      const resp = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
-      const {
-        sprites: { front_default },
-      } = (await resp.json()) as PokemonType;
-      url = front_default;
+      const promises = URLs.map((url) => fetch(url));
+      const responses = await Promise.all(promises);
+      const jsonPromises = responses.map((resp) => resp.json());
+      const pokemons = (await Promise.all(jsonPromises)) as PokemonType[];
+      return pokemons.map((pokemon) => pokemon.sprites.front_default);
     } catch (err) {
       console.error(err);
     }
 
-    return url;
+    return [];
   };
 
   const fetchEvolutions = useCallback(async () => {
@@ -53,10 +51,10 @@ export const EvolutionList: FC<EvolutionsListProps> = ({ pokemonSpeciesURL }) =>
 
     const evolutionsList = getArrayFromRecursiveObject(chain);
 
-    for (let evolIdx = 0; evolIdx < evolutionsList.length; evolIdx++) {
-      const name = evolutionsList[evolIdx].species.name;
-      evolutionsList[evolIdx].sprite = await fetchPokemonSpriteByName(name);
-    }
+    const urls: string[] = evolutionsList.map((item) => `https://pokeapi.co/api/v2/pokemon/${item.species.name}`);
+    const sprites: string[] = await fetchPokemonSpritesByName(urls);
+
+    evolutionsList.forEach((item, index, arr) => (arr[index].sprite = sprites[index]));
 
     setEvolutions(evolutionsList);
   }, [pokemonSpeciesURL]);
