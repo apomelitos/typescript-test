@@ -1,4 +1,5 @@
 import React, { useState, useEffect, FC } from 'react';
+import { usePagination } from '../hooks/usePagination';
 import { PokemonsListResponse, PokemonsListItem } from '../types';
 import { PokemonCard } from './PokemonCard';
 import { PokemonDetails } from './PokemonDetails';
@@ -7,8 +8,24 @@ import './PokemonsList.scss';
 const baseURL = 'https://pokeapi.co/api/v2';
 
 export const PokemonsList: FC = (): JSX.Element => {
-  const [pokemons, setPokemons] = useState<PokemonsListResponse>();
-  const [page, setPage] = useState(0);
+  const [pokemons, setPokemons] = useState<PokemonsListResponse>({
+    count: 0,
+    next: null,
+    previous: null,
+    results: [],
+  });
+
+  const {
+    totalPages: pageCount,
+    nextPage,
+    prevPage,
+    setPage,
+    page,
+  } = usePagination({
+    contentPerPage: 20,
+    count: pokemons?.count,
+  });
+  ///
   const [selectedPokemonId, setSelectedPokemonId] = useState<number | null>(null);
 
   const getIdFromURL = (url: string): number => {
@@ -21,21 +38,9 @@ export const PokemonsList: FC = (): JSX.Element => {
     return 0;
   };
 
-  const prevPageClickHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (pokemons?.previous) {
-      setPage((prev) => prev - 1);
-    }
-  };
-
-  const nextPageClickHandler = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (pokemons?.next) {
-      setPage((prev) => prev + 1);
-    }
-  };
-
   useEffect(() => {
     const fetchPokemons = async () => {
-      const response = await fetch(`${baseURL}/pokemon?offset=${page * 20}`);
+      const response = await fetch(`${baseURL}/pokemon?offset=${(page - 1) * 20}`);
       console.log(response);
       const data: PokemonsListResponse = (await response.json()) as PokemonsListResponse;
       setPokemons(data);
@@ -53,10 +58,23 @@ export const PokemonsList: FC = (): JSX.Element => {
             return <PokemonCard baseURL={baseURL} key={id} id={id} onClick={(id) => setSelectedPokemonId(id)} />;
           })}
       </ul>
-      <button className='page-btn' onClick={prevPageClickHandler}>
+      <button className='page-btn' onClick={prevPage}>
         Prev
       </button>
-      <button className='page-btn' onClick={nextPageClickHandler}>
+      {page !== 1 && (
+        <button className='page-btn' onClick={() => setPage(1)}>
+          1
+        </button>
+      )}
+      <button className='page-btn' disabled>
+        {page}
+      </button>
+      {page !== pageCount && (
+        <button className='page-btn' onClick={() => setPage(pageCount)}>
+          {pageCount}
+        </button>
+      )}
+      <button className='page-btn' onClick={nextPage}>
         Next
       </button>
       {selectedPokemonId && <PokemonDetails id={selectedPokemonId} baseURL={baseURL} />}
