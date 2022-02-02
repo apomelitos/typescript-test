@@ -1,5 +1,6 @@
 import React, { useState, useEffect, FC } from 'react';
 import { usePagination } from '../hooks/usePagination';
+import { getIdFromURL } from '../utils/helpers';
 import { PokemonsListResponse, PokemonsListItem } from '../types';
 import { PokemonCard } from './PokemonCard';
 import { PokemonDetails } from './PokemonDetails';
@@ -27,16 +28,6 @@ export const PokemonsList: FC = (): JSX.Element => {
   });
   ///
   const [selectedPokemonId, setSelectedPokemonId] = useState<number | null>(null);
-
-  const getIdFromURL = (url: string): number => {
-    const id = url.slice(0, -1).split('/').pop();
-
-    if (typeof id === 'string') {
-      return parseInt(id);
-    }
-
-    return 0;
-  };
 
   useEffect(() => {
     const fetchPokemons = async () => {
