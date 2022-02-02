@@ -1,12 +1,7 @@
 import { FC, useState, useEffect } from 'react';
-import { PokemonType } from '../types';
+import { PokemonType, PokemonDetailsProps } from '../types';
 import { EvolutionList } from './EvolutionsList';
 import './PokemonDetails.scss';
-
-type PokemonDetailsProps = {
-  id: number;
-  baseURL: string;
-};
 
 export const PokemonDetails: FC<PokemonDetailsProps> = ({ id, baseURL }): JSX.Element => {
   const [pokemon, setPokemon] = useState<PokemonType>();

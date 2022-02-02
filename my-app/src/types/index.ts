@@ -1,3 +1,4 @@
+// PokemonsList
 export type PokemonsListItem = {
   name: string;
   url: string;
@@ -26,8 +27,28 @@ export type PokemonType = {
   isOk: true;
 };
 
+// PokemonCard
 export type PokemonCardProps = {
   id: number;
   onClick: (id: number) => void;
+  baseURL: string;
+};
+
+/// EvolutionsList
+export type EvolutionChain = {
+  evolution_details: { min_happiness: number }[];
+  evolves_to: EvolutionChain[] | [];
+  is_baby: boolean;
+  species: { name: string; url: string };
+  sprite?: string;
+};
+
+export type EvolutionsListProps = {
+  pokemonSpeciesURL: string;
+};
+
+// PokemonDetails
+export type PokemonDetailsProps = {
+  id: number;
   baseURL: string;
 };

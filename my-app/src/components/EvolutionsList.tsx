@@ -1,18 +1,6 @@
 import { FC, useCallback, useEffect, useState } from 'react';
-import { PokemonType } from '../types';
+import { PokemonType, EvolutionChain, EvolutionsListProps } from '../types';
 import './EvolutionsList.scss';
-
-type EvolutionChain = {
-  evolution_details: { min_happiness: number }[];
-  evolves_to: EvolutionChain[] | [];
-  is_baby: boolean;
-  species: { name: string; url: string };
-  sprite?: string;
-};
-
-type EvolutionsListProps = {
-  pokemonSpeciesURL: string;
-};
 
 export const EvolutionList: FC<EvolutionsListProps> = ({ pokemonSpeciesURL }) => {
   const [evolutions, setEvolutions] = useState<EvolutionChain[]>();
@@ -64,8 +52,7 @@ export const EvolutionList: FC<EvolutionsListProps> = ({ pokemonSpeciesURL }) =>
     const { chain } = (await evolutionResponse.json()) as { chain: EvolutionChain };
 
     const evolutionsList = getArrayFromRecursiveObject(chain);
-    console.log(evolutionsList);
-    console.log(chain);
+
     for (let evolIdx = 0; evolIdx < evolutionsList.length; evolIdx++) {
       const name = evolutionsList[evolIdx].species.name;
       evolutionsList[evolIdx].sprite = await fetchPokemonSpriteByName(name);
