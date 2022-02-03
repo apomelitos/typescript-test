@@ -11,10 +11,10 @@ export const getIdFromURL = (url: string): number => {
 };
 
 export const isOfType = <T extends Record<string, unknown>>(obj: unknown, keys: Array<keyof T>): obj is T => {
-  if (!(obj instanceof Object)) return false;
+  if (!obj || typeof obj !== 'object') return false;
 
   for (const key of keys) {
-    if (!(key in obj)) return false;
+    if (typeof key !== 'string' || !(key in obj)) return false;
   }
 
   return true;
@@ -24,9 +24,9 @@ export const isArrayOfType = <T extends Record<string, unknown>>(
   value: unknown,
   keys: Array<keyof T>
 ): value is Array<T> => {
-  if (!(value instanceof Array)) return false;
+  if (!Array.isArray(value)) return false;
 
-  return value.length === 0 || isOfType<T>(value[0], keys);
+  return value.length === 0 || value.every((item) => isOfType<T>(item, keys));
 };
 
 export const isPokemon = (obj: unknown): obj is PokemonType => {
