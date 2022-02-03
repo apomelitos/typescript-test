@@ -54,43 +54,45 @@ const getArrayFromRecursiveObject = (obj: EvolutionChain): EvolutionChain[] => {
 export const EvolutionList: FC<EvolutionsListProps> = ({ pokemonSpeciesURL }) => {
   const [evolutions, setEvolutions] = useState<EvolutionChain[]>();
 
-  const fetchEvolutions = useCallback(async () => {
-    try {
-      const speciesResponse = await fetch(pokemonSpeciesURL);
+  useEffect(() => {
+    const fetchEvolutions = async () => {
+      try {
+        const speciesResponse = await fetch(pokemonSpeciesURL);
 
-      if (speciesResponse.ok) {
-        const specie: unknown = await speciesResponse.json();
+        if (speciesResponse.ok) {
+          const specie: unknown = await speciesResponse.json();
 
-        if (!isSpecie(specie)) {
-          throw new Error('Received data is not Specie type');
-        }
-
-        const evolutionResponse = await fetch(specie.evolution_chain.url);
-
-        if (evolutionResponse.ok) {
-          const evolutionChain: unknown = await evolutionResponse.json();
-
-          if (!isEvolutionChainResponse(evolutionChain)) {
-            throw new Error('Received data is not EvolutionChainResponse type');
+          if (!isSpecie(specie)) {
+            throw new Error('Received data is not Specie type');
           }
 
-          const evolutionsList = getArrayFromRecursiveObject(evolutionChain.chain);
-          const urls: string[] = evolutionsList.map((item) => `https://pokeapi.co/api/v2/pokemon/${item.species.name}`);
-          const sprites: string[] = await fetchPokemonSpritesByName(urls);
+          const evolutionResponse = await fetch(specie.evolution_chain.url);
 
-          evolutionsList.forEach((item, index, arr) => (arr[index].sprite = sprites[index]));
+          if (evolutionResponse.ok) {
+            const evolutionChain: unknown = await evolutionResponse.json();
 
-          setEvolutions(evolutionsList);
+            if (!isEvolutionChainResponse(evolutionChain)) {
+              throw new Error('Received data is not EvolutionChainResponse type');
+            }
+
+            const evolutionsList = getArrayFromRecursiveObject(evolutionChain.chain);
+            const urls: string[] = evolutionsList.map(
+              (item) => `https://pokeapi.co/api/v2/pokemon/${item.species.name}`
+            );
+            const sprites: string[] = await fetchPokemonSpritesByName(urls);
+
+            evolutionsList.forEach((item, index, arr) => (arr[index].sprite = sprites[index]));
+
+            setEvolutions(evolutionsList);
+          }
         }
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  }, [pokemonSpeciesURL]);
+    };
 
-  useEffect(() => {
     fetchEvolutions();
-  }, [fetchEvolutions]);
+  }, [pokemonSpeciesURL]);
 
   return (
     <ul className='evolution-chain'>
