@@ -47,6 +47,14 @@ export type EvolutionsListProps = {
   pokemonSpeciesURL: string;
 };
 
+export type SpecieType = {
+  evolution_chain: { url: string };
+};
+
+export type EvolutionChainResponse = {
+  chain: EvolutionChain;
+};
+
 // PokemonDetails
 export type PokemonDetailsProps = {
   id: number;

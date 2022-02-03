@@ -1,15 +1,7 @@
 import { FC, useCallback, useEffect, useState } from 'react';
 import { getIdFromURL, isArrayOf, isTypeOf } from '../utils/helpers';
-import { PokemonType, EvolutionChain, EvolutionsListProps } from '../types';
+import { PokemonType, EvolutionChain, EvolutionsListProps, SpecieType, EvolutionChainResponse } from '../types';
 import './EvolutionsList.scss';
-
-type SpecieType = {
-  evolution_chain: { url: string };
-};
-
-type EvolutionChainResponse = {
-  chain: EvolutionChain;
-};
 
 const fetchPokemonSpritesByName = async (URLs: string[]): Promise<string[]> => {
   try {
