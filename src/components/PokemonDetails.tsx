@@ -4,6 +4,10 @@ import { isOfType } from '../utils/helpers';
 import { EvolutionList } from './EvolutionsList';
 import './PokemonDetails.scss';
 
+export const isPokemon = (obj: unknown): obj is PokemonType => {
+  return !!obj && typeof obj === 'object' && 'base_experience' in obj;
+};
+
 export const PokemonDetails: FC<PokemonDetailsProps> = ({ id, baseURL }): JSX.Element => {
   const [pokemon, setPokemon] = useState<PokemonType>();
 
@@ -11,9 +15,9 @@ export const PokemonDetails: FC<PokemonDetailsProps> = ({ id, baseURL }): JSX.El
     const fetchPokemonById = async (id: number) => {
       try {
         const response = await fetch(`${baseURL}/pokemon/${id.toString()}`);
-        const data: unknown = (await response.json()) as PokemonType;
+        const data: unknown = await response.json();
 
-        if (!isOfType<PokemonType>(data, ['base_experience', 'name', 'species'])) {
+        if (!isPokemon(data)) {
           throw new Error('Received data is not Pokemon type');
         }
 

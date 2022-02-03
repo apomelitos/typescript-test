@@ -1,7 +1,15 @@
 import { FC, useCallback, useEffect, useState } from 'react';
-import { getIdFromURL, isOfType, isArrayOfType } from '../utils/helpers';
-import { PokemonType, EvolutionChain, EvolutionsListProps, SpecieType, EvolutionChainResponse } from '../types';
+import { getIdFromURL, isOfType, isArrayOfType, isPokemon } from '../utils/helpers';
+import { EvolutionChain, EvolutionsListProps, SpecieType, EvolutionChainResponse } from '../types';
 import './EvolutionsList.scss';
+
+const isSpecie = (obj: unknown): obj is SpecieType => {
+  return !!obj && typeof obj === 'object' && 'evolution_chain' in obj;
+};
+
+const isEvolutionChainResponse = (obj: unknown): obj is EvolutionChainResponse => {
+  return !!obj && typeof obj === 'object' && 'chain' in obj;
+};
 
 const fetchPokemonSpritesByName = async (URLs: string[]): Promise<string[]> => {
   try {
@@ -10,7 +18,9 @@ const fetchPokemonSpritesByName = async (URLs: string[]): Promise<string[]> => {
     const jsonPromises = responses.map((resp) => resp.json());
     const pokemons: unknown = await Promise.all(jsonPromises);
 
-    if (!isArrayOfType<PokemonType>(pokemons, ['base_experience', 'height'])) throw Error('something unusual');
+    if (!Array.isArray(pokemons) || !pokemons.every(isPokemon)) {
+      throw Error('something unusual');
+    }
 
     return pokemons.map((pokemon) => pokemon.sprites.front_default);
   } catch (err) {
@@ -51,7 +61,7 @@ export const EvolutionList: FC<EvolutionsListProps> = ({ pokemonSpeciesURL }) =>
       if (speciesResponse.ok) {
         const specie: unknown = await speciesResponse.json();
 
-        if (!isOfType<SpecieType>(specie, ['evolution_chain'])) {
+        if (!isSpecie(specie)) {
           throw new Error('Received data is not Specie type');
         }
 
@@ -60,7 +70,7 @@ export const EvolutionList: FC<EvolutionsListProps> = ({ pokemonSpeciesURL }) =>
         if (evolutionResponse.ok) {
           const evolutionChain: unknown = await evolutionResponse.json();
 
-          if (!isOfType<EvolutionChainResponse>(evolutionChain, ['chain'])) {
+          if (!isEvolutionChainResponse(evolutionChain)) {
             throw new Error('Received data is not EvolutionChainResponse type');
           }
 

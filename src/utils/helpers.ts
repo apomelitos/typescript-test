@@ -1,3 +1,5 @@
+import { PokemonType } from '../types';
+
 export const getIdFromURL = (url: string): number => {
   const id = url.slice(0, -1).split('/').pop();
 
@@ -25,4 +27,8 @@ export const isArrayOfType = <T extends Record<string, unknown>>(
   if (!(value instanceof Array)) return false;
 
   return value.length === 0 || isOfType<T>(value[0], keys);
+};
+
+export const isPokemon = (obj: unknown): obj is PokemonType => {
+  return !!obj && typeof obj === 'object' && 'base_experience' in obj;
 };

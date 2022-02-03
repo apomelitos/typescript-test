@@ -8,6 +8,14 @@ import './PokemonsList.scss';
 
 const baseURL = 'https://pokeapi.co/api/v2';
 
+const isPokemonListResponse = (obj: unknown): obj is PokemonsListResponse => {
+  return !!obj && typeof obj === 'object' && 'results' in obj;
+};
+
+const isPokemonsListItem = (obj: unknown): obj is PokemonsListItem => {
+  return !!obj && typeof obj === 'object' && 'url' in obj && 'name' in obj;
+};
+
 export const PokemonsList: FC = (): JSX.Element => {
   const [pokemons, setPokemons] = useState<PokemonsListResponse>({
     count: 0,
@@ -34,10 +42,7 @@ export const PokemonsList: FC = (): JSX.Element => {
       const response = await fetch(`${baseURL}/pokemon?offset=${(page - 1) * 20}`);
       const data: unknown = await response.json();
 
-      if (
-        !isOfType<PokemonsListResponse>(data, ['results', 'count', 'previous', 'next']) ||
-        !isArrayOfType<PokemonsListItem>(data.results, ['url', 'name'])
-      ) {
+      if (!isPokemonListResponse(data) || !Array.isArray(data.results) || !data.results.every(isPokemonsListItem)) {
         throw new Error('Received data is not PokemonsListResponse type');
       }
 
