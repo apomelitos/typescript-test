@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import { YesIAmApp as NeApp } from './App';
+import { App } from './App';
 
 ReactDOM.render(
   <React.StrictMode>
-    <NeApp />
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );

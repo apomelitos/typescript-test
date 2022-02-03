@@ -1,0 +1,22 @@
+.pokemon-details {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+
+  h2 {
+    flex-basis: 100%;
+    text-align: center;
+    text-transform: capitalize;
+  }
+
+  .img-wrapper {
+    flex-basis: 50%;
+    text-align: center;
+
+    img {
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+}
