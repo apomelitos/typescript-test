@@ -1,6 +1,6 @@
-import React, { useState, useEffect, FC } from 'react';
+import { useState, useEffect, FC } from 'react';
 import { usePagination } from '../hooks/usePagination';
-import { getIdFromURL, isArrayOfType, isOfType } from '../utils/helpers';
+import { getIdFromURL } from '../utils/helpers';
 import { PokemonsListResponse, PokemonsListItem } from '../types';
 import { PokemonCard } from './PokemonCard';
 import { PokemonDetails } from './PokemonDetails';

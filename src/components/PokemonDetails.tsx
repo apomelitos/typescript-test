@@ -1,6 +1,5 @@
 import { FC, useState, useEffect } from 'react';
 import { PokemonType, PokemonDetailsProps } from '../types';
-import { isOfType } from '../utils/helpers';
 import { EvolutionList } from './EvolutionsList';
 import './PokemonDetails.scss';
 

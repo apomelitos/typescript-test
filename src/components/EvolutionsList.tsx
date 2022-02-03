@@ -1,5 +1,5 @@
-import { FC, useCallback, useEffect, useState } from 'react';
-import { getIdFromURL, isOfType, isArrayOfType, isPokemon } from '../utils/helpers';
+import { FC, useEffect, useState } from 'react';
+import { getIdFromURL, isPokemon } from '../utils/helpers';
 import { EvolutionChain, EvolutionsListProps, SpecieType, EvolutionChainResponse } from '../types';
 import './EvolutionsList.scss';
 

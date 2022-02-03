@@ -1,7 +1,7 @@
 import { useEffect, useState, FC } from 'react';
 
 import { PokemonType, PokemonCardProps } from '../types';
-import { isOfType, isPokemon } from '../utils/helpers';
+import { isPokemon } from '../utils/helpers';
 
 export const PokemonCard: FC<PokemonCardProps> = ({ id, onClick, baseURL }): JSX.Element => {
   const [pokemon, setPokemon] = useState<PokemonType>();
