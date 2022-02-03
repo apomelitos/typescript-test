@@ -1,5 +1,5 @@
 import { FC, useCallback, useEffect, useState } from 'react';
-import { getIdFromURL } from '../utils/helpers';
+import { getIdFromURL, isArrayOf, isTypeOf } from '../utils/helpers';
 import { PokemonType, EvolutionChain, EvolutionsListProps } from '../types';
 import './EvolutionsList.scss';
 
@@ -16,7 +16,9 @@ const fetchPokemonSpritesByName = async (URLs: string[]): Promise<string[]> => {
     const promises = URLs.map((url) => fetch(url));
     const responses = await Promise.all(promises);
     const jsonPromises = responses.map((resp) => resp.json());
-    const pokemons = (await Promise.all(jsonPromises)) as PokemonType[];
+    const pokemons: unknown = await Promise.all(jsonPromises);
+
+    if (!isArrayOf<PokemonType>(pokemons, 'base_experience')) throw Error('something unusual');
 
     return pokemons.map((pokemon) => pokemon.sprites.front_default);
   } catch (err) {
@@ -26,47 +28,61 @@ const fetchPokemonSpritesByName = async (URLs: string[]): Promise<string[]> => {
   return [];
 };
 
-export const EvolutionList: FC<EvolutionsListProps> = ({ pokemonSpeciesURL }) => {
-  const [evolutions, setEvolutions] = useState<EvolutionChain[]>();
+const getArrayFromRecursiveObject = (obj: EvolutionChain): EvolutionChain[] => {
+  const arr: EvolutionChain[] = [];
 
-  const getArrayFromRecursiveObject = (obj: EvolutionChain): EvolutionChain[] => {
-    const arr: EvolutionChain[] = [];
+  let currentEvolution: EvolutionChain = obj;
 
-    let currentEvolution: EvolutionChain = obj;
-
-    while (currentEvolution.evolves_to.length && 'evolves_to' in currentEvolution.evolves_to[0]) {
-      arr.push({
-        ...currentEvolution,
-        evolves_to: [],
-      });
-      currentEvolution = currentEvolution.evolves_to[0];
-    }
-
+  while (currentEvolution.evolves_to.length && 'evolves_to' in currentEvolution.evolves_to[0]) {
     arr.push({
       ...currentEvolution,
       evolves_to: [],
     });
+    currentEvolution = currentEvolution.evolves_to[0];
+  }
 
-    return arr;
-  };
+  arr.push({
+    ...currentEvolution,
+    evolves_to: [],
+  });
+
+  return arr;
+};
+
+export const EvolutionList: FC<EvolutionsListProps> = ({ pokemonSpeciesURL }) => {
+  const [evolutions, setEvolutions] = useState<EvolutionChain[]>();
 
   const fetchEvolutions = useCallback(async () => {
-    const speciesResponse = await fetch(pokemonSpeciesURL);
+    try {
+      const speciesResponse = await fetch(pokemonSpeciesURL);
 
-    if (speciesResponse.ok) {
-      const { evolution_chain } = (await speciesResponse.json()) as SpecieType;
-      const evolutionResponse = await fetch(evolution_chain.url);
+      if (speciesResponse.ok) {
+        const specie: unknown = await speciesResponse.json();
 
-      if (evolutionResponse.ok) {
-        const { chain } = (await evolutionResponse.json()) as EvolutionChainResponse;
-        const evolutionsList = getArrayFromRecursiveObject(chain);
-        const urls: string[] = evolutionsList.map((item) => `https://pokeapi.co/api/v2/pokemon/${item.species.name}`);
-        const sprites: string[] = await fetchPokemonSpritesByName(urls);
+        if (!isTypeOf<SpecieType>(specie, 'evolution_chain')) {
+          throw new Error('Received data is not Specie type');
+        }
 
-        evolutionsList.forEach((item, index, arr) => (arr[index].sprite = sprites[index]));
+        const evolutionResponse = await fetch(specie.evolution_chain.url);
 
-        setEvolutions(evolutionsList);
+        if (evolutionResponse.ok) {
+          const evolutionChain: unknown = await evolutionResponse.json();
+
+          if (!isTypeOf<EvolutionChainResponse>(evolutionChain, 'chain')) {
+            throw new Error('Received data is not EvolutionChainResponse type');
+          }
+
+          const evolutionsList = getArrayFromRecursiveObject(evolutionChain.chain);
+          const urls: string[] = evolutionsList.map((item) => `https://pokeapi.co/api/v2/pokemon/${item.species.name}`);
+          const sprites: string[] = await fetchPokemonSpritesByName(urls);
+
+          evolutionsList.forEach((item, index, arr) => (arr[index].sprite = sprites[index]));
+
+          setEvolutions(evolutionsList);
+        }
       }
+    } catch (error) {
+      console.error(error);
     }
   }, [pokemonSpeciesURL]);
 

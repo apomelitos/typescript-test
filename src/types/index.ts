@@ -37,7 +37,7 @@ export type PokemonCardProps = {
 /// EvolutionsList
 export type EvolutionChain = {
   evolution_details: { min_happiness: number }[];
-  evolves_to: EvolutionChain[] | [];
+  evolves_to: EvolutionChain[];
   is_baby: boolean;
   species: { name: string; url: string };
   sprite?: string;
