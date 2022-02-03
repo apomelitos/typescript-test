@@ -8,12 +8,21 @@ export const getIdFromURL = (url: string): number => {
   return 0;
 };
 
-export const isTypeOf = <T extends Record<string, unknown>>(value: unknown, key: keyof T): value is T => {
-  return value instanceof Object && key in value;
+export const isOfType = <T extends Record<string, unknown>>(obj: unknown, keys: Array<keyof T>): obj is T => {
+  if (!(obj instanceof Object)) return false;
+
+  for (const key of keys) {
+    if (!(key in obj)) return false;
+  }
+
+  return true;
 };
 
-export const isArrayOf = <T extends Record<string, unknown>>(value: unknown, key: keyof T): value is Array<T> => {
+export const isArrayOfType = <T extends Record<string, unknown>>(
+  value: unknown,
+  keys: Array<keyof T>
+): value is Array<T> => {
   if (!(value instanceof Array)) return false;
 
-  return value.length === 0 || isTypeOf<T>(value[0], key);
+  return value.length === 0 || isOfType<T>(value[0], keys);
 };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, FC } from 'react';
 import { usePagination } from '../hooks/usePagination';
-import { getIdFromURL, isArrayOf, isTypeOf } from '../utils/helpers';
+import { getIdFromURL, isArrayOfType, isOfType } from '../utils/helpers';
 import { PokemonsListResponse, PokemonsListItem } from '../types';
 import { PokemonCard } from './PokemonCard';
 import { PokemonDetails } from './PokemonDetails';
@@ -34,7 +34,10 @@ export const PokemonsList: FC = (): JSX.Element => {
       const response = await fetch(`${baseURL}/pokemon?offset=${(page - 1) * 20}`);
       const data: unknown = await response.json();
 
-      if (!isTypeOf<PokemonsListResponse>(data, 'results') || !isArrayOf<PokemonsListItem>(data.results, 'url')) {
+      if (
+        !isOfType<PokemonsListResponse>(data, ['results', 'count', 'previous', 'next']) ||
+        !isArrayOfType<PokemonsListItem>(data.results, ['url', 'name'])
+      ) {
         throw new Error('Received data is not PokemonsListResponse type');
       }
 

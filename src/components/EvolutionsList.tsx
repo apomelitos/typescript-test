@@ -1,5 +1,5 @@
 import { FC, useCallback, useEffect, useState } from 'react';
-import { getIdFromURL, isArrayOf, isTypeOf } from '../utils/helpers';
+import { getIdFromURL, isOfType, isArrayOfType } from '../utils/helpers';
 import { PokemonType, EvolutionChain, EvolutionsListProps, SpecieType, EvolutionChainResponse } from '../types';
 import './EvolutionsList.scss';
 
@@ -10,7 +10,7 @@ const fetchPokemonSpritesByName = async (URLs: string[]): Promise<string[]> => {
     const jsonPromises = responses.map((resp) => resp.json());
     const pokemons: unknown = await Promise.all(jsonPromises);
 
-    if (!isArrayOf<PokemonType>(pokemons, 'base_experience')) throw Error('something unusual');
+    if (!isArrayOfType<PokemonType>(pokemons, ['base_experience', 'height'])) throw Error('something unusual');
 
     return pokemons.map((pokemon) => pokemon.sprites.front_default);
   } catch (err) {
@@ -51,7 +51,7 @@ export const EvolutionList: FC<EvolutionsListProps> = ({ pokemonSpeciesURL }) =>
       if (speciesResponse.ok) {
         const specie: unknown = await speciesResponse.json();
 
-        if (!isTypeOf<SpecieType>(specie, 'evolution_chain')) {
+        if (!isOfType<SpecieType>(specie, ['evolution_chain'])) {
           throw new Error('Received data is not Specie type');
         }
 
@@ -60,7 +60,7 @@ export const EvolutionList: FC<EvolutionsListProps> = ({ pokemonSpeciesURL }) =>
         if (evolutionResponse.ok) {
           const evolutionChain: unknown = await evolutionResponse.json();
 
-          if (!isTypeOf<EvolutionChainResponse>(evolutionChain, 'chain')) {
+          if (!isOfType<EvolutionChainResponse>(evolutionChain, ['chain'])) {
             throw new Error('Received data is not EvolutionChainResponse type');
           }
 

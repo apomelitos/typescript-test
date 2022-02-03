@@ -1,7 +1,7 @@
 import { useEffect, useState, FC } from 'react';
 
 import { PokemonType, PokemonCardProps } from '../types';
-import { isTypeOf } from '../utils/helpers';
+import { isOfType } from '../utils/helpers';
 
 export const PokemonCard: FC<PokemonCardProps> = ({ id, onClick, baseURL }): JSX.Element => {
   const [pokemon, setPokemon] = useState<PokemonType>();
@@ -13,7 +13,7 @@ export const PokemonCard: FC<PokemonCardProps> = ({ id, onClick, baseURL }): JSX
         console.log(response);
         const data: unknown = (await response.json()) as PokemonType;
 
-        if (!isTypeOf<PokemonType>(data, 'base_experience')) {
+        if (!isOfType<PokemonType>(data, ['base_experience', 'name', 'species'])) {
           throw new Error('Received data is not Pokemon type');
         }
 
